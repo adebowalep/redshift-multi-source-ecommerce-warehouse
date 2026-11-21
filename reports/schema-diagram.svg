@@ -1,0 +1,320 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1900 902" width="1900" height="902" font-family="Helvetica,Arial,sans-serif" font-size="11">
+<rect width="1900" height="902" fill="#ffffff"/>
+<text x="20" y="18" font-size="15" font-weight="bold" fill="#222">Unified Commerce Data Warehouse - dw schema (generated from project-ddl-long.md)</text>
+<line x1="240" y1="330" x2="790" y2="217" stroke="#2a7de1" stroke-width="1.2" opacity="0.55"/>
+<line x1="180" y1="330" x2="230" y2="217" stroke="#2a7de1" stroke-width="1.2" opacity="0.55"/>
+<line x1="186" y1="330" x2="236" y2="217" stroke="#2a7de1" stroke-width="1.2" opacity="0.55"/>
+<line x1="190" y1="757" x2="312" y2="790" stroke="#2a7de1" stroke-width="1.2" opacity="0.55"/>
+<line x1="220" y1="757" x2="521" y2="790" stroke="#2a7de1" stroke-width="1.2" opacity="0.55"/>
+<line x1="250" y1="757" x2="730" y2="790" stroke="#2a7de1" stroke-width="1.2" opacity="0.55"/>
+<line x1="160" y1="757" x2="103" y2="790" stroke="#2a7de1" stroke-width="1.2" opacity="0.55"/>
+<line x1="370" y1="757" x2="1566" y2="790" stroke="#2a7de1" stroke-width="1.2" opacity="0.55"/>
+<line x1="340" y1="757" x2="1357" y2="790" stroke="#2a7de1" stroke-width="1.2" opacity="0.55"/>
+<line x1="840" y1="330" x2="830" y2="217" stroke="#e07b00" stroke-width="1.2" opacity="0.55"/>
+<line x1="900" y1="330" x2="1390" y2="202" stroke="#e07b00" stroke-width="1.2" opacity="0.55"/>
+<line x1="780" y1="330" x2="270" y2="217" stroke="#e07b00" stroke-width="1.2" opacity="0.55"/>
+<line x1="820" y1="712" x2="531" y2="790" stroke="#e07b00" stroke-width="1.2" opacity="0.55"/>
+<line x1="850" y1="712" x2="740" y2="790" stroke="#e07b00" stroke-width="1.2" opacity="0.55"/>
+<line x1="880" y1="712" x2="949" y2="790" stroke="#e07b00" stroke-width="1.2" opacity="0.55"/>
+<line x1="910" y1="712" x2="1158" y2="790" stroke="#e07b00" stroke-width="1.2" opacity="0.55"/>
+<line x1="1000" y1="712" x2="1785" y2="790" stroke="#e07b00" stroke-width="1.2" opacity="0.55"/>
+<line x1="1380" y1="330" x2="310" y2="217" stroke="#2e9e5b" stroke-width="1.2" opacity="0.55"/>
+<line x1="1440" y1="330" x2="870" y2="217" stroke="#2e9e5b" stroke-width="1.2" opacity="0.55"/>
+<line x1="1446" y1="330" x2="876" y2="217" stroke="#2e9e5b" stroke-width="1.2" opacity="0.55"/>
+<line x1="1500" y1="330" x2="1430" y2="202" stroke="#2e9e5b" stroke-width="1.2" opacity="0.55"/>
+<line x1="1506" y1="330" x2="1436" y2="202" stroke="#2e9e5b" stroke-width="1.2" opacity="0.55"/>
+<line x1="1360" y1="712" x2="123" y2="790" stroke="#2e9e5b" stroke-width="1.2" opacity="0.55"/>
+<rect x="200" y="30" width="215" height="187" rx="5" fill="#fafafa" stroke="#4b5563" stroke-width="1.5"/>
+<rect x="200" y="30" width="215" height="24" rx="5" fill="#4b5563"/>
+<text x="208" y="46" font-size="12" font-weight="bold" fill="#fff">dw.dim_date</text>
+<text x="208" y="74" font-weight="bold" fill="#111">date_key</text>
+<text x="407" y="74" text-anchor="end" fill="#666">INTEGER PK</text>
+<text x="208" y="89" font-weight="normal" fill="#111">date_actual</text>
+<text x="407" y="89" text-anchor="end" fill="#666">DATE </text>
+<text x="208" y="104" font-weight="normal" fill="#111">year</text>
+<text x="407" y="104" text-anchor="end" fill="#666">SMALLINT </text>
+<text x="208" y="119" font-weight="normal" fill="#111">quarter</text>
+<text x="407" y="119" text-anchor="end" fill="#666">SMALLINT </text>
+<text x="208" y="134" font-weight="normal" fill="#111">month</text>
+<text x="407" y="134" text-anchor="end" fill="#666">SMALLINT </text>
+<text x="208" y="149" font-weight="normal" fill="#111">day</text>
+<text x="407" y="149" text-anchor="end" fill="#666">SMALLINT </text>
+<text x="208" y="164" font-weight="normal" fill="#111">week_of_year</text>
+<text x="407" y="164" text-anchor="end" fill="#666">SMALLINT </text>
+<text x="208" y="179" font-weight="normal" fill="#111">day_of_week</text>
+<text x="407" y="179" text-anchor="end" fill="#666">SMALLINT </text>
+<text x="208" y="194" font-weight="normal" fill="#111">is_weekend</text>
+<text x="407" y="194" text-anchor="end" fill="#666">BOOLEAN </text>
+<text x="208" y="211" font-size="10" fill="#555">DIST: ALL | SORT: date_key</text>
+<rect x="760" y="30" width="215" height="187" rx="5" fill="#fafafa" stroke="#4b5563" stroke-width="1.5"/>
+<rect x="760" y="30" width="215" height="24" rx="5" fill="#4b5563"/>
+<text x="768" y="46" font-size="12" font-weight="bold" fill="#fff">dw.dim_customer</text>
+<text x="768" y="74" font-weight="bold" fill="#111">customer_sk</text>
+<text x="967" y="74" text-anchor="end" fill="#666">BIGINT PK</text>
+<text x="768" y="89" font-weight="normal" fill="#111">customer_id</text>
+<text x="967" y="89" text-anchor="end" fill="#666">VARCHAR </text>
+<text x="768" y="104" font-weight="normal" fill="#111">country</text>
+<text x="967" y="104" text-anchor="end" fill="#666">VARCHAR </text>
+<text x="768" y="119" font-weight="normal" fill="#111">state</text>
+<text x="967" y="119" text-anchor="end" fill="#666">VARCHAR </text>
+<text x="768" y="134" font-weight="normal" fill="#111">customer_segment</text>
+<text x="967" y="134" text-anchor="end" fill="#666">VARCHAR </text>
+<text x="768" y="149" font-weight="normal" fill="#111">is_logged_in</text>
+<text x="967" y="149" text-anchor="end" fill="#666">BOOLEAN </text>
+<text x="768" y="164" font-weight="normal" fill="#111">effective_from</text>
+<text x="967" y="164" text-anchor="end" fill="#666">TIMESTAMP </text>
+<text x="768" y="179" font-weight="normal" fill="#111">effective_to</text>
+<text x="967" y="179" text-anchor="end" fill="#666">TIMESTAMP </text>
+<text x="768" y="194" font-weight="normal" fill="#111">is_current</text>
+<text x="967" y="194" text-anchor="end" fill="#666">BOOLEAN </text>
+<text x="768" y="211" font-size="10" fill="#555">DIST: KEY(customer_sk) | SORT: customer_sk</text>
+<rect x="1320" y="30" width="215" height="172" rx="5" fill="#fafafa" stroke="#4b5563" stroke-width="1.5"/>
+<rect x="1320" y="30" width="215" height="24" rx="5" fill="#4b5563"/>
+<text x="1328" y="46" font-size="12" font-weight="bold" fill="#fff">dw.dim_product</text>
+<text x="1328" y="74" font-weight="bold" fill="#111">product_sk</text>
+<text x="1527" y="74" text-anchor="end" fill="#666">BIGINT PK</text>
+<text x="1328" y="89" font-weight="normal" fill="#111">product_id</text>
+<text x="1527" y="89" text-anchor="end" fill="#666">VARCHAR </text>
+<text x="1328" y="104" font-weight="normal" fill="#111">category</text>
+<text x="1527" y="104" text-anchor="end" fill="#666">VARCHAR </text>
+<text x="1328" y="119" font-weight="normal" fill="#111">price_bucket</text>
+<text x="1527" y="119" text-anchor="end" fill="#666">VARCHAR </text>
+<text x="1328" y="134" font-weight="normal" fill="#111">current_unit_price_usd</text>
+<text x="1527" y="134" text-anchor="end" fill="#666">DECIMAL </text>
+<text x="1328" y="149" font-weight="normal" fill="#111">effective_from</text>
+<text x="1527" y="149" text-anchor="end" fill="#666">TIMESTAMP </text>
+<text x="1328" y="164" font-weight="normal" fill="#111">effective_to</text>
+<text x="1527" y="164" text-anchor="end" fill="#666">TIMESTAMP </text>
+<text x="1328" y="179" font-weight="normal" fill="#111">is_current</text>
+<text x="1527" y="179" text-anchor="end" fill="#666">BOOLEAN </text>
+<text x="1328" y="196" font-size="10" fill="#555">DIST: KEY(product_sk) | SORT: product_sk</text>
+<rect x="14" y="790" width="198" height="82" rx="5" fill="#fafafa" stroke="#4b5563" stroke-width="1.5"/>
+<rect x="14" y="790" width="198" height="24" rx="5" fill="#4b5563"/>
+<text x="22" y="806" font-size="12" font-weight="bold" fill="#fff">dw.dim_campaign</text>
+<text x="22" y="834" font-weight="bold" fill="#111">campaign_sk</text>
+<text x="204" y="834" text-anchor="end" fill="#666">BIGINT PK</text>
+<text x="22" y="849" font-weight="normal" fill="#111">campaign</text>
+<text x="204" y="849" text-anchor="end" fill="#666">VARCHAR </text>
+<text x="22" y="866" font-size="10" fill="#555">DIST: ALL | SORT: -</text>
+<rect x="223" y="790" width="198" height="82" rx="5" fill="#fafafa" stroke="#4b5563" stroke-width="1.5"/>
+<rect x="223" y="790" width="198" height="24" rx="5" fill="#4b5563"/>
+<text x="231" y="806" font-size="12" font-weight="bold" fill="#fff">dw.dim_channel</text>
+<text x="231" y="834" font-weight="bold" fill="#111">channel_sk</text>
+<text x="413" y="834" text-anchor="end" fill="#666">BIGINT PK</text>
+<text x="231" y="849" font-weight="normal" fill="#111">channel</text>
+<text x="413" y="849" text-anchor="end" fill="#666">VARCHAR </text>
+<text x="231" y="866" font-size="10" fill="#555">DIST: ALL | SORT: -</text>
+<rect x="432" y="790" width="198" height="82" rx="5" fill="#fafafa" stroke="#4b5563" stroke-width="1.5"/>
+<rect x="432" y="790" width="198" height="24" rx="5" fill="#4b5563"/>
+<text x="440" y="806" font-size="12" font-weight="bold" fill="#fff">dw.dim_device</text>
+<text x="440" y="834" font-weight="bold" fill="#111">device_sk</text>
+<text x="622" y="834" text-anchor="end" fill="#666">BIGINT PK</text>
+<text x="440" y="849" font-weight="normal" fill="#111">device_type</text>
+<text x="622" y="849" text-anchor="end" fill="#666">VARCHAR </text>
+<text x="440" y="866" font-size="10" fill="#555">DIST: ALL | SORT: -</text>
+<rect x="641" y="790" width="198" height="82" rx="5" fill="#fafafa" stroke="#4b5563" stroke-width="1.5"/>
+<rect x="641" y="790" width="198" height="24" rx="5" fill="#4b5563"/>
+<text x="649" y="806" font-size="12" font-weight="bold" fill="#fff">dw.dim_browser</text>
+<text x="649" y="834" font-weight="bold" fill="#111">browser_sk</text>
+<text x="831" y="834" text-anchor="end" fill="#666">BIGINT PK</text>
+<text x="649" y="849" font-weight="normal" fill="#111">browser</text>
+<text x="831" y="849" text-anchor="end" fill="#666">VARCHAR </text>
+<text x="649" y="866" font-size="10" fill="#555">DIST: ALL | SORT: -</text>
+<rect x="850" y="790" width="198" height="82" rx="5" fill="#fafafa" stroke="#4b5563" stroke-width="1.5"/>
+<rect x="850" y="790" width="198" height="24" rx="5" fill="#4b5563"/>
+<text x="858" y="806" font-size="12" font-weight="bold" fill="#fff">dw.dim_os</text>
+<text x="858" y="834" font-weight="bold" fill="#111">os_sk</text>
+<text x="1040" y="834" text-anchor="end" fill="#666">BIGINT PK</text>
+<text x="858" y="849" font-weight="normal" fill="#111">os</text>
+<text x="1040" y="849" text-anchor="end" fill="#666">VARCHAR </text>
+<text x="858" y="866" font-size="10" fill="#555">DIST: ALL | SORT: -</text>
+<rect x="1059" y="790" width="198" height="82" rx="5" fill="#fafafa" stroke="#4b5563" stroke-width="1.5"/>
+<rect x="1059" y="790" width="198" height="24" rx="5" fill="#4b5563"/>
+<text x="1067" y="806" font-size="12" font-weight="bold" fill="#fff">dw.dim_referrer</text>
+<text x="1067" y="834" font-weight="bold" fill="#111">referrer_sk</text>
+<text x="1249" y="834" text-anchor="end" fill="#666">BIGINT PK</text>
+<text x="1067" y="849" font-weight="normal" fill="#111">referrer</text>
+<text x="1249" y="849" text-anchor="end" fill="#666">VARCHAR </text>
+<text x="1067" y="866" font-size="10" fill="#555">DIST: ALL | SORT: -</text>
+<rect x="1268" y="790" width="198" height="82" rx="5" fill="#fafafa" stroke="#4b5563" stroke-width="1.5"/>
+<rect x="1268" y="790" width="198" height="24" rx="5" fill="#4b5563"/>
+<text x="1276" y="806" font-size="12" font-weight="bold" fill="#fff">dw.dim_shipping_method</text>
+<text x="1276" y="834" font-weight="bold" fill="#111">shipping_method_sk</text>
+<text x="1458" y="834" text-anchor="end" fill="#666">BIGINT PK</text>
+<text x="1276" y="849" font-weight="normal" fill="#111">shipping_method</text>
+<text x="1458" y="849" text-anchor="end" fill="#666">VARCHAR </text>
+<text x="1276" y="866" font-size="10" fill="#555">DIST: ALL | SORT: -</text>
+<rect x="1477" y="790" width="198" height="82" rx="5" fill="#fafafa" stroke="#4b5563" stroke-width="1.5"/>
+<rect x="1477" y="790" width="198" height="24" rx="5" fill="#4b5563"/>
+<text x="1485" y="806" font-size="12" font-weight="bold" fill="#fff">dw.dim_payment_method</text>
+<text x="1485" y="834" font-weight="bold" fill="#111">payment_method_sk</text>
+<text x="1667" y="834" text-anchor="end" fill="#666">BIGINT PK</text>
+<text x="1485" y="849" font-weight="normal" fill="#111">payment_method</text>
+<text x="1667" y="849" text-anchor="end" fill="#666">VARCHAR </text>
+<text x="1485" y="866" font-size="10" fill="#555">DIST: ALL | SORT: -</text>
+<rect x="1686" y="790" width="198" height="82" rx="5" fill="#fafafa" stroke="#4b5563" stroke-width="1.5"/>
+<rect x="1686" y="790" width="198" height="24" rx="5" fill="#4b5563"/>
+<text x="1694" y="806" font-size="12" font-weight="bold" fill="#fff">dw.dim_ab_variant</text>
+<text x="1694" y="834" font-weight="bold" fill="#111">ab_variant_sk</text>
+<text x="1876" y="834" text-anchor="end" fill="#666">BIGINT PK</text>
+<text x="1694" y="849" font-weight="normal" fill="#111">ab_variant</text>
+<text x="1876" y="849" text-anchor="end" fill="#666">VARCHAR </text>
+<text x="1694" y="866" font-size="10" fill="#555">DIST: ALL | SORT: -</text>
+<rect x="140" y="330" width="330" height="427" rx="5" fill="#fafafa" stroke="#2a7de1" stroke-width="1.5"/>
+<rect x="140" y="330" width="330" height="24" rx="5" fill="#2a7de1"/>
+<text x="148" y="346" font-size="12" font-weight="bold" fill="#fff">dw.fact_orders</text>
+<text x="148" y="374" font-weight="bold" fill="#111">order_sk</text>
+<text x="462" y="374" text-anchor="end" fill="#666">BIGINT PK</text>
+<text x="148" y="389" font-weight="normal" fill="#111">order_id</text>
+<text x="462" y="389" text-anchor="end" fill="#666">VARCHAR </text>
+<text x="148" y="404" font-weight="bold" fill="#111">customer_sk</text>
+<text x="462" y="404" text-anchor="end" fill="#666">BIGINT FK</text>
+<text x="148" y="419" font-weight="bold" fill="#111">order_date_key</text>
+<text x="462" y="419" text-anchor="end" fill="#666">INTEGER FK</text>
+<text x="148" y="434" font-weight="bold" fill="#111">ship_date_key</text>
+<text x="462" y="434" text-anchor="end" fill="#666">INTEGER FK</text>
+<text x="148" y="449" font-weight="bold" fill="#111">channel_sk</text>
+<text x="462" y="449" text-anchor="end" fill="#666">BIGINT FK</text>
+<text x="148" y="464" font-weight="bold" fill="#111">device_sk</text>
+<text x="462" y="464" text-anchor="end" fill="#666">BIGINT FK</text>
+<text x="148" y="479" font-weight="bold" fill="#111">browser_sk</text>
+<text x="462" y="479" text-anchor="end" fill="#666">BIGINT FK</text>
+<text x="148" y="494" font-weight="bold" fill="#111">campaign_sk</text>
+<text x="462" y="494" text-anchor="end" fill="#666">BIGINT FK</text>
+<text x="148" y="509" font-weight="bold" fill="#111">payment_method_sk</text>
+<text x="462" y="509" text-anchor="end" fill="#666">BIGINT FK</text>
+<text x="148" y="524" font-weight="bold" fill="#111">shipping_method_sk</text>
+<text x="462" y="524" text-anchor="end" fill="#666">BIGINT FK</text>
+<text x="148" y="539" font-weight="normal" fill="#111">primary_category</text>
+<text x="462" y="539" text-anchor="end" fill="#666">VARCHAR </text>
+<text x="148" y="554" font-weight="normal" fill="#111">num_distinct_items</text>
+<text x="462" y="554" text-anchor="end" fill="#666">INTEGER </text>
+<text x="148" y="569" font-weight="normal" fill="#111">subtotal_usd</text>
+<text x="462" y="569" text-anchor="end" fill="#666">DECIMAL </text>
+<text x="148" y="584" font-weight="normal" fill="#111">discount_rate</text>
+<text x="462" y="584" text-anchor="end" fill="#666">DECIMAL </text>
+<text x="148" y="599" font-weight="normal" fill="#111">discount_amount_usd</text>
+<text x="462" y="599" text-anchor="end" fill="#666">DECIMAL </text>
+<text x="148" y="614" font-weight="normal" fill="#111">shipping_cost_usd</text>
+<text x="462" y="614" text-anchor="end" fill="#666">DECIMAL </text>
+<text x="148" y="629" font-weight="normal" fill="#111">tax_rate</text>
+<text x="462" y="629" text-anchor="end" fill="#666">DECIMAL </text>
+<text x="148" y="644" font-weight="normal" fill="#111">tax_amount_usd</text>
+<text x="462" y="644" text-anchor="end" fill="#666">DECIMAL </text>
+<text x="148" y="659" font-weight="normal" fill="#111">order_total_usd</text>
+<text x="462" y="659" text-anchor="end" fill="#666">DECIMAL </text>
+<text x="148" y="674" font-weight="normal" fill="#111">order_weight_kg</text>
+<text x="462" y="674" text-anchor="end" fill="#666">DECIMAL </text>
+<text x="148" y="689" font-weight="normal" fill="#111">delivery_days</text>
+<text x="462" y="689" text-anchor="end" fill="#666">INTEGER </text>
+<text x="148" y="704" font-weight="normal" fill="#111">on_time_delivery</text>
+<text x="462" y="704" text-anchor="end" fill="#666">BOOLEAN </text>
+<text x="148" y="719" font-weight="normal" fill="#111">authorization_approved</text>
+<text x="462" y="719" text-anchor="end" fill="#666">BOOLEAN </text>
+<text x="148" y="734" font-weight="normal" fill="#111">returned</text>
+<text x="462" y="734" text-anchor="end" fill="#666">BOOLEAN </text>
+<text x="148" y="751" font-size="10" fill="#555">DIST: KEY(customer_sk) | SORT: order_date_key</text>
+<rect x="740" y="330" width="330" height="382" rx="5" fill="#fafafa" stroke="#e07b00" stroke-width="1.5"/>
+<rect x="740" y="330" width="330" height="24" rx="5" fill="#e07b00"/>
+<text x="748" y="346" font-size="12" font-weight="bold" fill="#fff">dw.fact_events</text>
+<text x="748" y="374" font-weight="bold" fill="#111">event_sk</text>
+<text x="1062" y="374" text-anchor="end" fill="#666">BIGINT PK</text>
+<text x="748" y="389" font-weight="normal" fill="#111">event_id</text>
+<text x="1062" y="389" text-anchor="end" fill="#666">VARCHAR </text>
+<text x="748" y="404" font-weight="bold" fill="#111">customer_sk</text>
+<text x="1062" y="404" text-anchor="end" fill="#666">BIGINT FK</text>
+<text x="748" y="419" font-weight="bold" fill="#111">product_sk</text>
+<text x="1062" y="419" text-anchor="end" fill="#666">BIGINT FK</text>
+<text x="748" y="434" font-weight="bold" fill="#111">event_date_key</text>
+<text x="1062" y="434" text-anchor="end" fill="#666">INTEGER FK</text>
+<text x="748" y="449" font-weight="normal" fill="#111">session_id</text>
+<text x="1062" y="449" text-anchor="end" fill="#666">VARCHAR </text>
+<text x="748" y="464" font-weight="normal" fill="#111">event_type</text>
+<text x="1062" y="464" text-anchor="end" fill="#666">VARCHAR </text>
+<text x="748" y="479" font-weight="bold" fill="#111">device_sk</text>
+<text x="1062" y="479" text-anchor="end" fill="#666">BIGINT FK</text>
+<text x="748" y="494" font-weight="bold" fill="#111">browser_sk</text>
+<text x="1062" y="494" text-anchor="end" fill="#666">BIGINT FK</text>
+<text x="748" y="509" font-weight="bold" fill="#111">os_sk</text>
+<text x="1062" y="509" text-anchor="end" fill="#666">BIGINT FK</text>
+<text x="748" y="524" font-weight="bold" fill="#111">referrer_sk</text>
+<text x="1062" y="524" text-anchor="end" fill="#666">BIGINT FK</text>
+<text x="748" y="539" font-weight="bold" fill="#111">ab_variant_sk</text>
+<text x="1062" y="539" text-anchor="end" fill="#666">BIGINT FK</text>
+<text x="748" y="554" font-weight="normal" fill="#111">page_depth</text>
+<text x="1062" y="554" text-anchor="end" fill="#666">INTEGER </text>
+<text x="748" y="569" font-weight="normal" fill="#111">latency_ms</text>
+<text x="1062" y="569" text-anchor="end" fill="#666">INTEGER </text>
+<text x="748" y="584" font-weight="normal" fill="#111">dwell_seconds</text>
+<text x="1062" y="584" text-anchor="end" fill="#666">INTEGER </text>
+<text x="748" y="599" font-weight="normal" fill="#111">cart_value_usd</text>
+<text x="1062" y="599" text-anchor="end" fill="#666">DECIMAL </text>
+<text x="748" y="614" font-weight="normal" fill="#111">discount_rate</text>
+<text x="1062" y="614" text-anchor="end" fill="#666">DECIMAL </text>
+<text x="748" y="629" font-weight="normal" fill="#111">fraud_score</text>
+<text x="1062" y="629" text-anchor="end" fill="#666">DECIMAL </text>
+<text x="748" y="644" font-weight="normal" fill="#111">payment_outcome</text>
+<text x="1062" y="644" text-anchor="end" fill="#666">VARCHAR </text>
+<text x="748" y="659" font-weight="normal" fill="#111">sequence_num</text>
+<text x="1062" y="659" text-anchor="end" fill="#666">INTEGER </text>
+<text x="748" y="674" font-weight="normal" fill="#111">category</text>
+<text x="1062" y="674" text-anchor="end" fill="#666">VARCHAR </text>
+<text x="748" y="689" font-weight="normal" fill="#111">promo_code</text>
+<text x="1062" y="689" text-anchor="end" fill="#666">VARCHAR </text>
+<text x="748" y="706" font-size="10" fill="#555">DIST: KEY(customer_sk) | SORT: event_date_key</text>
+<rect x="1340" y="330" width="330" height="382" rx="5" fill="#fafafa" stroke="#2e9e5b" stroke-width="1.5"/>
+<rect x="1340" y="330" width="330" height="24" rx="5" fill="#2e9e5b"/>
+<text x="1348" y="346" font-size="12" font-weight="bold" fill="#fff">dw.fact_graph_edges</text>
+<text x="1348" y="374" font-weight="bold" fill="#111">edge_sk</text>
+<text x="1662" y="374" text-anchor="end" fill="#666">BIGINT PK</text>
+<text x="1348" y="389" font-weight="normal" fill="#111">edge_id</text>
+<text x="1662" y="389" text-anchor="end" fill="#666">VARCHAR </text>
+<text x="1348" y="404" font-weight="bold" fill="#111">event_date_key</text>
+<text x="1662" y="404" text-anchor="end" fill="#666">INTEGER FK</text>
+<text x="1348" y="419" font-weight="normal" fill="#111">relationship</text>
+<text x="1662" y="419" text-anchor="end" fill="#666">VARCHAR </text>
+<text x="1348" y="434" font-weight="bold" fill="#111">from_customer_sk</text>
+<text x="1662" y="434" text-anchor="end" fill="#666">BIGINT FK</text>
+<text x="1348" y="449" font-weight="bold" fill="#111">to_customer_sk</text>
+<text x="1662" y="449" text-anchor="end" fill="#666">BIGINT FK</text>
+<text x="1348" y="464" font-weight="bold" fill="#111">from_product_sk</text>
+<text x="1662" y="464" text-anchor="end" fill="#666">BIGINT FK</text>
+<text x="1348" y="479" font-weight="bold" fill="#111">to_product_sk</text>
+<text x="1662" y="479" text-anchor="end" fill="#666">BIGINT FK</text>
+<text x="1348" y="494" font-weight="normal" fill="#111">order_id</text>
+<text x="1662" y="494" text-anchor="end" fill="#666">VARCHAR </text>
+<text x="1348" y="509" font-weight="normal" fill="#111">category</text>
+<text x="1662" y="509" text-anchor="end" fill="#666">VARCHAR </text>
+<text x="1348" y="524" font-weight="bold" fill="#111">campaign_sk</text>
+<text x="1662" y="524" text-anchor="end" fill="#666">BIGINT FK</text>
+<text x="1348" y="539" font-weight="normal" fill="#111">customer_segment</text>
+<text x="1662" y="539" text-anchor="end" fill="#666">VARCHAR </text>
+<text x="1348" y="554" font-weight="normal" fill="#111">region</text>
+<text x="1662" y="554" text-anchor="end" fill="#666">VARCHAR </text>
+<text x="1348" y="569" font-weight="normal" fill="#111">state</text>
+<text x="1662" y="569" text-anchor="end" fill="#666">VARCHAR </text>
+<text x="1348" y="584" font-weight="normal" fill="#111">edge_strength</text>
+<text x="1662" y="584" text-anchor="end" fill="#666">DECIMAL </text>
+<text x="1348" y="599" font-weight="normal" fill="#111">price_bucket</text>
+<text x="1662" y="599" text-anchor="end" fill="#666">VARCHAR </text>
+<text x="1348" y="614" font-weight="normal" fill="#111">prior_interactions</text>
+<text x="1662" y="614" text-anchor="end" fill="#666">INTEGER </text>
+<text x="1348" y="629" font-weight="normal" fill="#111">dwell_seconds</text>
+<text x="1662" y="629" text-anchor="end" fill="#666">INTEGER </text>
+<text x="1348" y="644" font-weight="normal" fill="#111">unit_price_usd</text>
+<text x="1662" y="644" text-anchor="end" fill="#666">DECIMAL </text>
+<text x="1348" y="659" font-weight="normal" fill="#111">quantity</text>
+<text x="1662" y="659" text-anchor="end" fill="#666">INTEGER </text>
+<text x="1348" y="674" font-weight="normal" fill="#111">returned_flag</text>
+<text x="1662" y="674" text-anchor="end" fill="#666">BOOLEAN </text>
+<text x="1348" y="689" font-weight="normal" fill="#111">auth_approved</text>
+<text x="1662" y="689" text-anchor="end" fill="#666">BOOLEAN </text>
+<text x="1348" y="706" font-size="10" fill="#555">DIST: KEY(to_product_sk) | SORT: event_date_key</text>
+<text x="1500" y="812" font-weight="bold">Relationships (fact FK -> dimension PK)</text>
+<line x1="1500" y1="830" x2="1528" y2="830" stroke="#2a7de1" stroke-width="2"/>
+<text x="1536" y="834">fact_orders</text>
+<line x1="1500" y1="846" x2="1528" y2="846" stroke="#e07b00" stroke-width="2"/>
+<text x="1536" y="850">fact_events</text>
+<line x1="1500" y1="862" x2="1528" y2="862" stroke="#2e9e5b" stroke-width="2"/>
+<text x="1536" y="866">fact_graph_edges</text>
+</svg>
