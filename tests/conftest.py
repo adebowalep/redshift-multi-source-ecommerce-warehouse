@@ -86,6 +86,7 @@ def _make_wh(ns, pgsrv, deny_create_schema=False):
         cur.execute(f"CREATE DATABASE {db}")
     admin.close()
     api = PgDataApi(pgsrv.dsn, dbname=db, deny_create_schema=deny_create_schema)
+    api.admin_dsn = dsn_with(pgsrv.dsn, "postgres")                      # used by the fixtures to drop the database again
     ns["rsd"] = api
     ns["NAMING"]["public_fallback"] = False
     ns["TQDM"] = False
@@ -93,11 +94,22 @@ def _make_wh(ns, pgsrv, deny_create_schema=False):
     return Warehouse(ns, api, db)
 
 
+def _drop(w):
+    """Drop the per-test database again: a few hundred 8 MB databases would otherwise fill the disk."""
+    import psycopg2
+    w.api.close()
+    admin = psycopg2.connect(w.api.admin_dsn)
+    admin.autocommit = True
+    with admin.cursor() as cur:
+        cur.execute(f"DROP DATABASE IF EXISTS {w.db} WITH (FORCE)")
+    admin.close()
+
+
 @pytest.fixture
 def wh(ns, pgsrv):
     w = _make_wh(ns, pgsrv)
     yield w
-    w.api.close()
+    _drop(w)
 
 
 @pytest.fixture
@@ -105,7 +117,7 @@ def wh_lab(ns, pgsrv):
     """Same, but CREATE SCHEMA is denied like for the Udacity lab user -> public.stg_* / public.dw_* naming."""
     w = _make_wh(ns, pgsrv, deny_create_schema=True)
     yield w
-    w.api.close()
+    _drop(w)
 
 
 @pytest.fixture

@@ -26,6 +26,10 @@ def pgdb(ns, pgsrv):
               PG_PW=params.get("password", ""))
     yield db
     ns.update(saved)
+    admin = psycopg2.connect(dsn_with(pgsrv.dsn, "postgres"))
+    admin.autocommit = True
+    admin.cursor().execute(f"DROP DATABASE IF EXISTS {db} WITH (FORCE)")
+    admin.close()
 
 
 def orders_frame(ns, rows):
