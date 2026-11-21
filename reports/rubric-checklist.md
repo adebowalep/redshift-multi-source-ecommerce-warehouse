@@ -1,3 +1,11 @@
+> **HISTORICAL DOCUMENT (Udacity rubric self-review, 2026-11-12).** The evidence names below (`starter (1).ipynb`, `starter (4).ipynb`) are the
+> workspace notebooks of earlier runs. The notebook committed in this repository (`starter.ipynb`) is the **final** recorded run, whose report
+> is `reports/warehouse_report.md`.
+>
+> **Known inconsistency between runs (kept, not rewritten):** this checklist and the screenshots quote the materialized-view speed-up of
+> earlier runs (1.10x here, 1.15x in `screenshots/05b_performance_explain_plans.png`). The final recorded run, saved in `starter.ipynb` and
+> `reports/warehouse_report.md`, measured **1.14x**. All three are the same experiment repeated on 2,500 rows, i.e. run-to-run noise.
+
 # Independent rubric review (reviewer mode)
 
 Basis: a complete notebook run in the Udacity workspace against real PostgreSQL, Cassandra, Neo4j and Redshift (saved as `starter (1).ipynb`, all cells executed, no errors).
