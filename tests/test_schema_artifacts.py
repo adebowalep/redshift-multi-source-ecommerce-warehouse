@@ -215,3 +215,27 @@ def test_the_recorded_run_used_the_lab_naming_fallback_and_the_report_says_so():
 def test_historical_documents_are_labelled_as_such():
     for name in ("00-project-audit.md", "rubric-checklist.md"):
         assert "HISTORICAL DOCUMENT" in (ROOT / "reports" / name).read_text()[:600], name
+
+
+def test_recorded_catalog_output_agrees_with_the_ddl_and_the_report_for_distribution_and_sort_keys(ns):
+    """Redshift's own catalog output (saved in the recorded run) must say what the DDL and report section 8 say."""
+    _, text = evidence_text()
+    report = (ROOT / "reports" / "warehouse_report.md").read_text()
+    checked = 0
+    for _, r in ns["DDL_TABLES"][ns["DDL_TABLES"].schema == "dw"].iterrows():
+        m = re.search(rf"dw\.{r.table}\s+public\s+dw_{r.table}\s+(\S+)\s+(\S+)", text)
+        assert m, r.table
+        want_dist = f"KEY({r.distkey})" if r.diststyle == "KEY" else r.diststyle
+        assert m.group(1) == want_dist, (r.table, m.group(1), want_dist)
+        assert m.group(2) == (r.sortkey if isinstance(r.sortkey, str) else "None"), (r.table, m.group(2), r.sortkey)
+        if r.kind == "fact":
+            assert f"| dw.{r.table} | KEY({r.distkey}) | {r.sortkey} |" in report
+        checked += 1
+    assert checked == 15
+
+
+def test_recorded_encodings_match_the_documented_choice():
+    """zstd on most columns, raw ('none') on the leading sort-key column; the one az64 column per fact is the IDENTITY key (no ENCODE clause)."""
+    _, text = evidence_text()
+    for fact, zstd in (("fact_orders", 23), ("fact_events", 20), ("fact_graph_edges", 20)):
+        assert re.search(rf"dw\.{fact}\s+none\s+1", text) and re.search(rf"dw\.{fact}\s+zstd\s+{zstd}", text) and re.search(rf"dw\.{fact}\s+az64\s+1", text)

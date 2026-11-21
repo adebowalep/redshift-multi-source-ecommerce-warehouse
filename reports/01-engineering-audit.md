@@ -48,3 +48,25 @@ throw-away **PostgreSQL 17 emulation** of the warehouse SQL, not on Amazon Redsh
 * The reports in `reports/` still describe the recorded run and were not regenerated.
 * Type 1 (overwrite) was chosen for changed dimension attributes; Type 2 history is not implemented and not claimed.
 * No CDC, streaming, S3 `COPY` or orchestrator was added.
+
+## 4. Review of the recorded performance and schema evidence
+
+Checked against the **saved outputs of the recorded Redshift run** (not re-measured):
+
+| Item | Finding |
+|---|---|
+| Distribution and sort keys | The catalog output (`pg_class` / `pg_attribute`) lists, for all 15 `dw` tables, exactly the keys in the DDL and in report section 8. Now enforced by a test. |
+| Column encodings | Fact tables: 1 `none` (= `ENCODE raw` on the leading sort-key column), 1 `az64` (the `IDENTITY` surrogate key, which has no `ENCODE` clause so Redshift applied its default), rest `zstd` (23 / 20 / 20). Consistent with "zstd on most columns, raw on leading sort-key columns". Now enforced by a test. |
+| Staging tables | The catalog shows `reldiststyle` **9** for the three staging tables, a value that the notebook's own mapping table does not contain, so it printed as "9". The DDL gives no distribution clause (the report says `AUTO/EVEN`). Not interpreted further; no claim is made about it. |
+| Materialized view | 542 rows, 0 differing rows, `REFRESH` succeeded. `stv_mv_info` was not readable by the lab user (permission denied), as the checklist already says. |
+| Speed-up | 1.14x (median of 6 runs, result cache bypassed by a unique predicate per run). Both queries take ~50 ms on 2,500 rows, so the figure is direction only; the earlier "larger data would widen the gap" sentence was removed (D5). No larger benchmark exists and none was invented. |
+| `EXPLAIN` | `DS_DIST_NONE` on all three fact-to-dimension joins, as designed. |
+| Batch loading | Multi-row `INSERT` through the Data API is documented as a small-data choice; S3 `COPY` is the normal approach for large loads and was not implemented (no demonstrated need). |
+| Diagram check | See D6: strengthened and documented; `project-mermaid-diagram.md` now states what the check covers and the logical/physical naming. |
+
+## 5. Open items that need the owner
+
+1. **Run the revised notebook once in a disposable Redshift lab database** (modes, `UPDATE ... FROM`, `WITH ... UPDATE`). Until then these are *not verified on Redshift* (E10). After that run, `starter.ipynb` can carry outputs again and the reports can be regenerated.
+2. **Push and let GitHub Actions run.** The workflow has been executed only in a local simulation of CI (clean virtual environment from `requirements-dev.txt`, external PostgreSQL via `TEST_PG_DSN`); no remote run exists.
+3. **Publication rights** of the course-supplied files: see `PROVENANCE.md`. The repository is public today and has no license.
+4. Cassandra / Neo4j correction semantics (E9) were analysed, not executed; a one-off local check with Docker would settle them.
