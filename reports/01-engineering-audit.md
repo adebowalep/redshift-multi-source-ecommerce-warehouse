@@ -70,3 +70,31 @@ Checked against the **saved outputs of the recorded Redshift run** (not re-measu
 2. ~~Push and let GitHub Actions run.~~ *Done after this audit was written:* the workflow passed on `main` (run 45004439085, 195 tests). It still says nothing about Redshift.
 3. **Publication rights** of the course-supplied files: see `PROVENANCE.md`. The repository is public today and has no license.
 4. Cassandra / Neo4j correction semantics (E9) were analysed, not executed; a one-off local check with Docker would settle them.
+
+## 6. Final review round: partial failure, Redshift compatibility, CI
+
+**Partial failure.** The notebook sends each SQL statement as a separate Data API `ExecuteStatement` call, with no `BEGIN`/`COMMIT` and no `BatchExecuteStatement`.
+The AWS pages read for this review say a batch runs as one transaction by default (up to 40 statements) and that an `ExecuteStatement` takes a single statement; they do not
+spell out what a failed or cancelled single statement leaves behind, so the design does not depend on it. Observed on the PostgreSQL emulation (autocommit per statement):
+
+| Question | Answer (tested in `tests/test_partial_failure.py`) |
+|---|---|
+| Shared transaction? | No. Earlier statements stay committed when a later one fails |
+| Dimension updated, fact update fails | dimensions corrected, facts old; a re-run corrects the facts (surrogate keys unchanged) |
+| Two facts updated, third fails | two corrected, one old; a re-run completes it |
+| Facts updated, view not rebuilt | the materialized view is stale (or missing if `DROP` ran and `CREATE` failed) until Task 5 runs again; `REFRESH` failure likewise |
+| Failure at any of the 20 load statements, statement rejected or "applied but reported failed" | only old or corrected rows exist (no duplicates, no lost rows); a re-run reaches exactly the state of an uninterrupted run, every row and surrogate key |
+| Recovery not automatic | removed source records (the load stops by design); overlapping runs (untested; the AWS isolation page describes serialization errors for concurrent writers); readers see the partial state until the re-run; Redshift behaviour of a client-side timeout/cancel is undocumented |
+
+No code change was needed for recovery: each statement is idempotent and derives its work from staging. A single `BatchExecuteStatement` in `TRANSACTION` mode would make the 20
+load statements atomic and fits the 40-statement limit, but it changes result handling and could not be verified without Redshift, so it is recorded as an option, not implemented.
+The pipeline is therefore **recoverable by re-running, not atomic**. The one code change made in this round: the materialized-view SQL moved into the importable SQL cell so the test uses the notebook's own text.
+
+**Redshift compatibility review (official documentation; not executed).** The warehouse SQL avoids `IS DISTINCT FROM`, `ON CONFLICT`, `DISTINCT ON` and top-level outer joins in `UPDATE ... FROM`
+(`IS DISTINCT FROM` and `ON CONFLICT` appear only in the PostgreSQL *source* loader). Open items that only a live Redshift can settle: `WITH ... UPDATE`, schema-qualified target columns without an alias,
+and the `pg_tables` query. They are listed with fallbacks in `02-redshift-verification-checklist.md`. No incompatibility was confirmed, so no SQL was changed on the strength of the documentation alone.
+
+**CI.** The workflow passed on `main` (run 45004439085, 195 tests, commit `c42b0db`). It runs against PostgreSQL and says nothing about Redshift.
+
+**Test assertion (T1).** `test_corrected_event_is_applied_and_a_null_can_replace_a_value` combined `and`/`or` without parentheses, so a NaN `product_sk` made it pass whatever `dwell_seconds` was.
+It now asserts dwell, product key, category, surrogate key, event count and uniqueness separately, with a negative control that feeds a wrong value.
