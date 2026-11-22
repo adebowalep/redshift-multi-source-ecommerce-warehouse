@@ -17,7 +17,7 @@ throw-away **PostgreSQL 17 emulation** of the warehouse SQL, not on Amazon Redsh
 | 27 of 27 data-quality checks | notebook output, `reports/validation-results.md` |
 | Materialized view, 542 rows, 0 differing rows vs a fresh aggregation | notebook output, report section 8 |
 | `ANALYZE` on 6 tables, `DS_DIST_NONE` on all 3 joins | notebook output, report section 8 |
-| MV speed-up **1.14x** (final run) | notebook output and report. Earlier runs gave 1.10x (rubric checklist) and 1.15x (screenshot 05b): same experiment, run-to-run noise on 2,500 rows |
+| MV speed-up **1.14x** (final run) | executed notebook (`evidence/`) and report. Earlier runs gave 1.10x (rubric checklist) and 1.15x (screenshot 05b): same experiment, run-to-run noise on 2,500 rows |
 | Lab naming `public.stg_*` / `public.dw_*` | notebook output (`public_fallback`), report "Naming note", `validation-results.md` |
 
 ## 2. Findings
@@ -27,7 +27,7 @@ throw-away **PostgreSQL 17 emulation** of the warehouse SQL, not on Amazon Redsh
 | D1 | README said the notebook has no outputs, the reports do not exist and nothing Redshift-specific is verified | `README.md` before commit `1c17858` vs. the files above | Confirmed | High (credibility) | README rewritten around the recorded run | `tests/test_schema_artifacts.py` evidence tests |
 | D2 | Three different speed-up figures in three artefacts (1.10x / 1.14x / 1.15x) | checklist, notebook/report, screenshot 05b | Confirmed | Low | kept, labelled as run-to-run noise; README quotes 1.14x (final run) | evidence test asserts 1.14x in report and notebook |
 | D3 | `00-project-audit.md` and `rubric-checklist.md` describe earlier stages ("NOT VERIFIED") | the files | Confirmed | Medium | banner marks them HISTORICAL; text untouched | test `historical_documents_are_labelled` |
-| D4 | Screenshots come from an earlier run of the same code, not from the final run | 05b shows 1.15x, notebook 1.14x | Confirmed | Low | README says so | - |
+| D4 | Screenshots come from an earlier run of the same code, not from the final run | 05b shows 1.15x, executed notebook 1.14x | Confirmed | Low | README says so | - |
 | D5 | Notebook text "Larger data would widen the gap" extrapolates the 2,500-row experiment | cell *Performance evidence* | Confirmed | Low | sentence replaced by "says nothing about larger data" | notebook diff |
 | D6 | Diagram check only compared table names and column *presence* (extra columns, types, relationships unchecked) while its output read "MATCH (all 15 dw tables and all their columns present)" | cell *Schema diagram*, original source | Confirmed | Medium | `check_diagram()` also checks extra columns, type families and fact-to-dimension relationships; docstring and message state what is NOT checked | 10 negative tests in `test_schema_artifacts.py` |
 | E1 | Re-running the notebook **drops and re-creates every populated project table** (`DROP TABLE IF EXISTS` in the DDL cell) | `scripts/repro/output.txt` R1: 2 fact rows before, 0 after | Confirmed | **High** | `PIPELINE_MODE` INITIALIZE (default, never drops) / LOAD / REBUILD (allow-listed database **and** exact confirmation string) | `tests/test_ddl_modes.py` |
@@ -67,6 +67,6 @@ Checked against the **saved outputs of the recorded Redshift run** (not re-measu
 ## 5. Open items that need the owner
 
 1. **Run the revised notebook once in a disposable Redshift lab database** (modes, `UPDATE ... FROM`, `WITH ... UPDATE`). Until then these are *not verified on Redshift* (E10). After that run, `starter.ipynb` can carry outputs again and the reports can be regenerated.
-2. **Push and let GitHub Actions run.** The workflow has been executed only in a local simulation of CI (clean virtual environment from `requirements-dev.txt`, external PostgreSQL via `TEST_PG_DSN`); no remote run exists.
+2. ~~Push and let GitHub Actions run.~~ *Done after this audit was written:* the workflow passed on `main` (run 45004439085, 195 tests). It still says nothing about Redshift.
 3. **Publication rights** of the course-supplied files: see `PROVENANCE.md`. The repository is public today and has no license.
 4. Cassandra / Neo4j correction semantics (E9) were analysed, not executed; a one-off local check with Docker would settle them.

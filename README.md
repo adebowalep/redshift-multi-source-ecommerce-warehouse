@@ -13,8 +13,10 @@ An e-commerce company stores **orders**, **user events** and **product relations
 project integrates them into one dimensional warehouse on Amazon Redshift, so that revenue, behaviour and product questions can be answered
 with consistent SQL. It is an educational project built on Udacity course material (see [Attribution](#attribution-and-licensing)).
 
-> **CI status.** A GitHub Actions workflow is configured (`.github/workflows/ci.yml`), but at the time of writing it has **not run on GitHub**
-> (the hardening work is committed locally and has not been pushed). The badge above shows "no status" until it does. Do not read it as a pass.
+> **CI status.** The offline test workflow ([`ci.yml`](.github/workflows/ci.yml)) passed on `main`
+> ([run 45004439085](https://github.com/adebowalep/redshift-multi-source-ecommerce-warehouse/actions/runs/45004439085): 195 tests passed).
+> The badge above is the live status of the latest run. CI runs against a PostgreSQL container and proves nothing about Amazon Redshift:
+> the revised Redshift-specific SQL has **not** been run on Redshift (see [Testing and verification](#testing-and-verification)).
 
 ## Key results (historical Redshift run, 2026-11-12)
 
@@ -59,7 +61,7 @@ flowchart TD
 | Redshift Data API (`boto3`) | executes all SQL: polling, paging, timeout/cancel, expired-credential detection |
 | SQL | dimensional loads, update statements, 27 data-quality checks, analytics |
 | pytest, sqlglot | regression tests, SQL syntax checks (Redshift dialect) |
-| GitHub Actions | offline test workflow (configured, not yet run) |
+| GitHub Actions | offline test workflow (PostgreSQL service container, no AWS) |
 
 ## Data sources
 
@@ -140,7 +142,7 @@ This is a safe, repeatable batch load with support for corrections. It is **not*
 |---|---|---|
 | **Historical execution** (Udacity AWS workspace, 2026-11-12) | the **original** notebook, end to end, on real PostgreSQL, Cassandra, Neo4j and Redshift | `evidence/starter.executed-2026-11-12.ipynb` (36 of 36 code cells executed, 0 error outputs), `reports/`, `screenshots/` (rendered from an earlier clean run of the same code) |
 | **Local tests** (macOS, Python 3.13, PostgreSQL 17) | 195 tests pass: transformations, Data API helper behaviour (scripted fake client), source loaders, setup modes and rebuild guard, warehouse semantics, negative controls, SQL parsing, diagram check, consistency of the recorded evidence. 14 deliberate code mutations were all caught (`scripts/mutation_check.py`). | `tests/` |
-| **Automated CI** | workflow configured, **not run on GitHub yet** | `.github/workflows/ci.yml` |
+| **GitHub Actions** (Ubuntu, Python 3.12, PostgreSQL 16 container) | dependency install, syntax check of the tests and every notebook code cell, and `pytest`: **195 passed** on the latest reviewed `main` run (commit `c42b0db`). No AWS credentials, Redshift, Cassandra or Neo4j are used. | [run 45004439085](https://github.com/adebowalep/redshift-multi-source-ecommerce-warehouse/actions/runs/45004439085), `.github/workflows/ci.yml` |
 | **Not verified** | the code changed after the recorded run has **not been run on Amazon Redshift**: `UPDATE ... FROM`, `WITH ... UPDATE`, the changed `INSERT ... SELECT FROM (subquery)` forms, the `pg_tables` mode detection and the new `PIPELINE_MODE` flow. They are parsed as Redshift SQL (sqlglot) and executed on PostgreSQL only. Cassandra and Neo4j correction semantics were analysed, not executed (see limitations). | `reports/01-engineering-audit.md` |
 
 The revised notebook's saved outputs were cleared because its code no longer matches the recorded run; the reports in `reports/` still
