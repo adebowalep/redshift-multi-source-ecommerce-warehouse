@@ -10,7 +10,7 @@ Audit date: 2026-11-12. Nothing in the starter files has been modified yet.
 
 | Item | Location | Status |
 |---|---|---|
-| `starter.ipynb` (47 cells) | project root (identical to `~/Downloads/starter.ipynb`) | Present, unmodified |
+| `starter.ipynb` (47 cells; the original course starter, since replaced by the revised notebook of the same name, see `evidence/`) | project root (identical to `~/Downloads/starter.ipynb`) | Present, unmodified (at audit time) |
 | `project-ddl-long.md` | project root (identical to Downloads copy) | Present, unmodified |
 | `project-mermaid-diagram.md` | project root | Present, unmodified |
 | `data/*.csv` (3 files) | project root, identical in `selected_folders_backup (3).zip` | Present, readable |

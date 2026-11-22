@@ -17,7 +17,7 @@ throw-away **PostgreSQL 17 emulation** of the warehouse SQL, not on Amazon Redsh
 | 27 of 27 data-quality checks | notebook output, `reports/validation-results.md` |
 | Materialized view, 542 rows, 0 differing rows vs a fresh aggregation | notebook output, report section 8 |
 | `ANALYZE` on 6 tables, `DS_DIST_NONE` on all 3 joins | notebook output, report section 8 |
-| MV speed-up **1.14x** (final run) | notebook output and report. Earlier runs gave 1.10x (rubric checklist) and 1.15x (screenshot 05b): same experiment, run-to-run noise on 2,500 rows |
+| MV speed-up **1.14x** (final run) | executed notebook (`evidence/`) and report. Earlier runs gave 1.10x (rubric checklist) and 1.15x (screenshot 05b): same experiment, run-to-run noise on 2,500 rows |
 | Lab naming `public.stg_*` / `public.dw_*` | notebook output (`public_fallback`), report "Naming note", `validation-results.md` |
 
 ## 2. Findings
@@ -27,7 +27,7 @@ throw-away **PostgreSQL 17 emulation** of the warehouse SQL, not on Amazon Redsh
 | D1 | README said the notebook has no outputs, the reports do not exist and nothing Redshift-specific is verified | `README.md` before commit `1c17858` vs. the files above | Confirmed | High (credibility) | README rewritten around the recorded run | `tests/test_schema_artifacts.py` evidence tests |
 | D2 | Three different speed-up figures in three artefacts (1.10x / 1.14x / 1.15x) | checklist, notebook/report, screenshot 05b | Confirmed | Low | kept, labelled as run-to-run noise; README quotes 1.14x (final run) | evidence test asserts 1.14x in report and notebook |
 | D3 | `00-project-audit.md` and `rubric-checklist.md` describe earlier stages ("NOT VERIFIED") | the files | Confirmed | Medium | banner marks them HISTORICAL; text untouched | test `historical_documents_are_labelled` |
-| D4 | Screenshots come from an earlier run of the same code, not from the final run | 05b shows 1.15x, notebook 1.14x | Confirmed | Low | README says so | - |
+| D4 | Screenshots come from an earlier run of the same code, not from the final run | 05b shows 1.15x, executed notebook 1.14x | Confirmed | Low | README says so | - |
 | D5 | Notebook text "Larger data would widen the gap" extrapolates the 2,500-row experiment | cell *Performance evidence* | Confirmed | Low | sentence replaced by "says nothing about larger data" | notebook diff |
 | D6 | Diagram check only compared table names and column *presence* (extra columns, types, relationships unchecked) while its output read "MATCH (all 15 dw tables and all their columns present)" | cell *Schema diagram*, original source | Confirmed | Medium | `check_diagram()` also checks extra columns, type families and fact-to-dimension relationships; docstring and message state what is NOT checked | 10 negative tests in `test_schema_artifacts.py` |
 | E1 | Re-running the notebook **drops and re-creates every populated project table** (`DROP TABLE IF EXISTS` in the DDL cell) | `scripts/repro/output.txt` R1: 2 fact rows before, 0 after | Confirmed | **High** | `PIPELINE_MODE` INITIALIZE (default, never drops) / LOAD / REBUILD (allow-listed database **and** exact confirmation string) | `tests/test_ddl_modes.py` |
@@ -37,7 +37,7 @@ throw-away **PostgreSQL 17 emulation** of the warehouse SQL, not on Amazon Redsh
 | E5 | `ROW_NUMBER()` ties are not deterministic: same data, different staging row order, different `dim_customer` / `dim_product` values | `scripts/repro/output.txt` T1: (US,CA)/(low,10) vs (DE,BE)/(high,99) | Confirmed on PostgreSQL (Redshift not tested) | Medium | added the record id (`order_id` / `event_id` / `edge_id`, higher wins) as last sort key; country and state always from ONE record | parametrised tests with reversed insertion order |
 | E6 | Source record removed: facts keep the stale row; the run only failed on a later count assertion | code reading | Confirmed (behaviour), unsupported by design | Medium | explicit `check_no_stale_facts()` with a clear message; no delete logic (out of scope, documented) | `test_removed_source_record...` |
 | E7 | Interrupted staging load: the fact cell had no guard of its own | code reading | Suspected, low likelihood (the staging cell asserts counts) | Low | `check_staging_complete()` before any fact/dimension write | `test_interrupted_staging_load...` |
-| E8 | One row larger than the 100 KB Data API limit would fail inside AWS with an opaque error | code reading + new test | Confirmed gap | Low | `rs_batch_insert` raises a clear `ValueError` before sending | `test_a_single_row_that_cannot_fit...` |
+| E8 | One row larger than the Data API statement-size limit (AWS pages give 200 KB and 16 MB; the code uses a conservative 90,000 characters) would fail inside AWS with an opaque error | code reading + new test | Confirmed gap | Low | `rs_batch_insert` raises a clear `ValueError` before sending | `test_a_single_row_that_cannot_fit...` |
 | E9 | Cassandra loads NULL as `UNSET_VALUE` and Neo4j uses `SET e += props` without NULLs: a correction **to NULL** does not clear the old value. A correction that changes a Cassandra primary-key column, or a Neo4j edge's endpoints/type, creates a second record with the same `edge_id`/`event_id`, which `conform()` then rejects as a duplicate | driver semantics, code | **Suspected, not executed** (no Cassandra/Neo4j service here; Docker daemon not running) | Medium | documented as limitation, loud failure (duplicate key) rather than silent corruption | README "Known limitations" |
 | E10 | Redshift-specific SQL added by this review (`UPDATE ... FROM`, `WITH ... UPDATE`) is only parsed (sqlglot, Redshift dialect) and run on PostgreSQL | - | **Not verified on Redshift** | Medium | NULL-safe comparison written without `IS DISTINCT FROM`; to be run once in a disposable lab database | README "Not verified" |
 
@@ -67,6 +67,34 @@ Checked against the **saved outputs of the recorded Redshift run** (not re-measu
 ## 5. Open items that need the owner
 
 1. **Run the revised notebook once in a disposable Redshift lab database** (modes, `UPDATE ... FROM`, `WITH ... UPDATE`). Until then these are *not verified on Redshift* (E10). After that run, `starter.ipynb` can carry outputs again and the reports can be regenerated.
-2. **Push and let GitHub Actions run.** The workflow has been executed only in a local simulation of CI (clean virtual environment from `requirements-dev.txt`, external PostgreSQL via `TEST_PG_DSN`); no remote run exists.
+2. ~~Push and let GitHub Actions run.~~ *Done after this audit was written:* the workflow passed on `main` (run 45004439085, 195 tests). It still says nothing about Redshift.
 3. **Publication rights** of the course-supplied files: see `PROVENANCE.md`. The repository is public today and has no license.
 4. Cassandra / Neo4j correction semantics (E9) were analysed, not executed; a one-off local check with Docker would settle them.
+
+## 6. Final review round: partial failure, Redshift compatibility, CI
+
+**Partial failure.** The notebook sends each SQL statement as a separate Data API `ExecuteStatement` call, with no `BEGIN`/`COMMIT` and no `BatchExecuteStatement`.
+The AWS pages read for this review say a batch runs as one transaction by default (up to 40 statements) and that an `ExecuteStatement` takes a single statement; they do not
+spell out what a failed or cancelled single statement leaves behind, so the design does not depend on it. Observed on the PostgreSQL emulation (autocommit per statement):
+
+| Question | Answer (tested in `tests/test_partial_failure.py`) |
+|---|---|
+| Shared transaction? | No. Earlier statements stay committed when a later one fails |
+| Dimension updated, fact update fails | dimensions corrected, facts old; a re-run corrects the facts (surrogate keys unchanged) |
+| Two facts updated, third fails | two corrected, one old; a re-run completes it |
+| Facts updated, view not rebuilt | the materialized view is stale (or missing if `DROP` ran and `CREATE` failed) until Task 5 runs again; `REFRESH` failure likewise |
+| Failure at any of the 20 load statements, statement rejected or "applied but reported failed" | only old or corrected rows exist (no duplicates, no lost rows); a re-run reaches exactly the state of an uninterrupted run, every row and surrogate key |
+| Recovery not automatic | removed source records (the load stops by design); overlapping runs (untested; the AWS isolation page describes serialization errors for concurrent writers); readers see the partial state until the re-run; Redshift behaviour of a client-side timeout/cancel is undocumented |
+
+No code change was needed for recovery: each statement is idempotent and derives its work from staging. A single `BatchExecuteStatement` in `TRANSACTION` mode would make the 20
+load statements atomic and fits the 40-statement limit, but it changes result handling and could not be verified without Redshift, so it is recorded as an option, not implemented.
+The pipeline is therefore **recoverable by re-running, not atomic**. The one code change made in this round: the materialized-view SQL moved into the importable SQL cell so the test uses the notebook's own text.
+
+**Redshift compatibility review (official documentation; not executed).** The warehouse SQL avoids `IS DISTINCT FROM`, `ON CONFLICT`, `DISTINCT ON` and top-level outer joins in `UPDATE ... FROM`
+(`IS DISTINCT FROM` and `ON CONFLICT` appear only in the PostgreSQL *source* loader). Open items that only a live Redshift can settle: `WITH ... UPDATE`, schema-qualified target columns without an alias,
+and the `pg_tables` query. They are listed with fallbacks in `02-redshift-verification-checklist.md`. No incompatibility was confirmed, so no SQL was changed on the strength of the documentation alone.
+
+**CI.** The workflow passed on `main` (run 45004439085, 195 tests, commit `c42b0db`). It runs against PostgreSQL and says nothing about Redshift.
+
+**Test assertion (T1).** `test_corrected_event_is_applied_and_a_null_can_replace_a_value` combined `and`/`or` without parentheses, so a NaN `product_sk` made it pass whatever `dwell_seconds` was.
+It now asserts dwell, product key, category, surrogate key, event count and uniqueness separately, with a negative control that feeds a wrong value.

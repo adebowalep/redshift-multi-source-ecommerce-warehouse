@@ -13,8 +13,10 @@ An e-commerce company stores **orders**, **user events** and **product relations
 project integrates them into one dimensional warehouse on Amazon Redshift, so that revenue, behaviour and product questions can be answered
 with consistent SQL. It is an educational project built on Udacity course material (see [Attribution](#attribution-and-licensing)).
 
-> **CI status.** A GitHub Actions workflow is configured (`.github/workflows/ci.yml`), but at the time of writing it has **not run on GitHub**
-> (the hardening work is committed locally and has not been pushed). The badge above shows "no status" until it does. Do not read it as a pass.
+> **CI status.** The offline test workflow ([`ci.yml`](.github/workflows/ci.yml)) passed on `main`
+> ([run 45004439085](https://github.com/adebowalep/redshift-multi-source-ecommerce-warehouse/actions/runs/45004439085): 195 tests passed).
+> The badge above is the live status of the latest run. CI runs against a PostgreSQL container and proves nothing about Amazon Redshift:
+> the revised Redshift-specific SQL has **not** been run on Redshift (see [Testing and verification](#testing-and-verification)).
 
 ## Key results (historical Redshift run, 2026-11-12)
 
@@ -59,7 +61,7 @@ flowchart TD
 | Redshift Data API (`boto3`) | executes all SQL: polling, paging, timeout/cancel, expired-credential detection |
 | SQL | dimensional loads, update statements, 27 data-quality checks, analytics |
 | pytest, sqlglot | regression tests, SQL syntax checks (Redshift dialect) |
-| GitHub Actions | offline test workflow (configured, not yet run) |
+| GitHub Actions | offline test workflow (PostgreSQL service container, no AWS) |
 
 ## Data sources
 
@@ -122,9 +124,19 @@ key is kept and a changed attribute is overwritten (Type 1). The schema is *SCD 
 | Dependent objects | an update does not refresh the materialized view by itself; the notebook drops, recreates and refreshes it in Task 5 |
 | Record removed from the source | **not deleted.** The load stops with an explicit error ("facts without a staging row") |
 | Interrupted staging load | detected before any fact is touched (staging row counts are compared first); a re-run recovers |
+| Failure part-way through the dimension or fact statements | earlier statements stay applied (partial writes); re-running the pipeline repairs the warehouse (next section) |
 | Two records with the same timestamp | the one with the higher record id wins, so the result does not depend on row order |
 
 This is a safe, repeatable batch load with support for corrections. It is **not** CDC, not streaming and not incremental in the sense of loading only deltas.
+
+**Transaction boundaries and recovery.** Every SQL statement is sent as its own Data API `ExecuteStatement` call; there is **no transaction across the pipeline**
+(and the staging `TRUNCATE` commits by itself on Redshift). A failure at statement *n* therefore leaves statements 1 to *n*-1 applied: for example corrected
+dimensions with old facts, or two corrected facts and one old one, and a materialized view that is stale until Task 5 runs again. Each statement is set-based and
+idempotent and compares against staging rather than against a "changed" flag, so **re-running the pipeline completes the interrupted work**. This is tested by
+injecting a failure at each of the 20 dimension and fact statements (both "rejected" and "applied but reported failed"), checking that the intermediate state holds only
+old or corrected rows, re-running, and requiring every row and surrogate key to equal an uninterrupted run ([`tests/test_partial_failure.py`](tests/test_partial_failure.py)).
+Limits: this was shown on the PostgreSQL emulation only; readers can see the partial state between failure and re-run; recovery assumes one pipeline run at a time (overlapping
+runs are not tested); and removed source records are not recoverable by a re-run (they stop the load). The pipeline is **not atomic**.
 
 ## Engineering challenges
 
@@ -139,9 +151,9 @@ This is a safe, repeatable batch load with support for corrections. It is **not*
 | Environment | What was verified | Evidence |
 |---|---|---|
 | **Historical execution** (Udacity AWS workspace, 2026-11-12) | the **original** notebook, end to end, on real PostgreSQL, Cassandra, Neo4j and Redshift | `evidence/starter.executed-2026-11-12.ipynb` (36 of 36 code cells executed, 0 error outputs), `reports/`, `screenshots/` (rendered from an earlier clean run of the same code) |
-| **Local tests** (macOS, Python 3.13, PostgreSQL 17) | 195 tests pass: transformations, Data API helper behaviour (scripted fake client), source loaders, setup modes and rebuild guard, warehouse semantics, negative controls, SQL parsing, diagram check, consistency of the recorded evidence. 14 deliberate code mutations were all caught (`scripts/mutation_check.py`). | `tests/` |
-| **Automated CI** | workflow configured, **not run on GitHub yet** | `.github/workflows/ci.yml` |
-| **Not verified** | the code changed after the recorded run has **not been run on Amazon Redshift**: `UPDATE ... FROM`, `WITH ... UPDATE`, the changed `INSERT ... SELECT FROM (subquery)` forms, the `pg_tables` mode detection and the new `PIPELINE_MODE` flow. They are parsed as Redshift SQL (sqlglot) and executed on PostgreSQL only. Cassandra and Neo4j correction semantics were analysed, not executed (see limitations). | `reports/01-engineering-audit.md` |
+| **Local tests** (macOS, Python 3.13, PostgreSQL 17) | 244 tests pass: transformations, Data API helper behaviour (scripted fake client), source loaders, setup modes and rebuild guard, warehouse semantics, recovery from a failure injected at each load statement, negative controls, SQL parsing, diagram check, consistency of the recorded evidence. 14 deliberate code mutations were all caught (`scripts/mutation_check.py`). | `tests/` |
+| **GitHub Actions** (Ubuntu, Python 3.12, PostgreSQL 16 container) | dependency install, syntax check of the tests and every notebook code cell, and `pytest`: **195 passed** on the latest reviewed `main` run (commit `c42b0db`; later commits have not run on GitHub yet). No AWS credentials, Redshift, Cassandra or Neo4j are used. | [run 45004439085](https://github.com/adebowalep/redshift-multi-source-ecommerce-warehouse/actions/runs/45004439085), `.github/workflows/ci.yml` |
+| **Amazon Redshift, revised code** (not verified) | the code changed after the recorded run has **not been run on Amazon Redshift**: `UPDATE ... FROM`, `WITH ... UPDATE`, the changed `INSERT ... SELECT FROM (subquery)` forms, the `pg_tables` mode detection and the new `PIPELINE_MODE` flow. They are parsed as Redshift SQL (sqlglot) and executed on PostgreSQL only. Cassandra and Neo4j correction semantics were analysed, not executed (see limitations). | `reports/01-engineering-audit.md` |
 
 The revised notebook's saved outputs were cleared because its code no longer matches the recorded run; the reports in `reports/` still
 describe the recorded run.
@@ -176,9 +188,10 @@ Restart & Run All. The default `PIPELINE_MODE=INITIALIZE` never drops tables. To
 - Batched `INSERT` loading instead of S3 `COPY`.
 - Only a small share of customers appears in more than one system (72 customers have both orders and events), so cross-source behavioural analysis covers just those customers; there is no full-funnel attribution.
 - No CDC and no deletes: removed source records stop the load. Corrections are applied only as Type 1 overwrites.
+- No atomicity across the load: a failed run leaves partial writes until the pipeline is run again (see "Transaction boundaries and recovery").
 - SCD Type 2 history is not implemented (the schema is ready for it).
 - Cassandra loads missing values as "unset" and Neo4j updates use `SET e += props`, so a correction **to NULL** does not clear an old value there; a correction that changes a Cassandra key column or a Neo4j edge's endpoints creates a second record that the transformation rejects as a duplicate. Analysed, not executed.
-- The changes made after the recorded run are not verified on Redshift (see above); the screenshots come from an earlier run of the same code.
+- The changes made after the recorded run are not verified on Redshift (see above; a step-by-step [checklist](reports/02-redshift-verification-checklist.md) is ready, nothing has been run); the screenshots come from an earlier run of the same code.
 - Redistribution rights of the supplied course material are unverified ([PROVENANCE.md](PROVENANCE.md)).
 
 ## Repository structure
@@ -205,6 +218,7 @@ scripts/                              diagram renderer, defect reproductions, mu
 | Stage-by-stage execution log | [`reports/pipeline_log.csv`](reports/pipeline_log.csv) |
 | Field mapping | [`reports/field-mapping.md`](reports/field-mapping.md) |
 | Engineering audit (reproduced defects, fixes, open items) | [`reports/01-engineering-audit.md`](reports/01-engineering-audit.md) |
+| Manual Redshift verification checklist (not yet executed) | [`reports/02-redshift-verification-checklist.md`](reports/02-redshift-verification-checklist.md) |
 | Historical documents (labelled) | [`reports/00-project-audit.md`](reports/00-project-audit.md), [`reports/rubric-checklist.md`](reports/rubric-checklist.md) |
 | Executed notebook of the recorded run | [`evidence/`](evidence/starter.executed-2026-11-12.ipynb) |
 | Screenshots | [`screenshots/`](screenshots/) |

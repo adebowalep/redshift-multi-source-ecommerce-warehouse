@@ -1,4 +1,5 @@
 """What the pipeline does with repeated, corrected, removed and conflicting source records (PostgreSQL emulation of Redshift)."""
+import pandas as pd
 import pytest
 
 from synth import raw_edge, raw_event, raw_order
@@ -106,12 +107,36 @@ def test_corrected_graph_relationship_is_applied(loaded, data):
     assert loaded.count("dw.fact_graph_edges") == 4
 
 
+def assert_event_corrected(wh, before, expected_dwell):
+    """Each condition is asserted on its own, so one cannot mask another (an `a and b or c` expression once did)."""
+    rows = wh.df("SELECT event_sk, event_id, dwell_seconds, product_sk, category FROM dw.fact_events WHERE event_id = 'EVT2'")
+    assert len(rows) == 1                                                  # corrected in place, no duplicate event
+    row = rows.iloc[0]
+    assert row.dwell_seconds == expected_dwell                             # the corrected value was applied
+    assert pd.isna(row.product_sk)                                         # a correction to NULL replaced the old key
+    assert pd.isna(row.category)                                           # ... and the old category
+    assert row.event_sk == before.event_sk                                 # the existing row (and surrogate key) was updated, not re-inserted
+    assert wh.count("dw.fact_events") == 3                                 # event count unchanged
+    assert wh.scalar("SELECT COUNT(*) - COUNT(DISTINCT event_id) FROM dw.fact_events") == 0
+
+
 def test_corrected_event_is_applied_and_a_null_can_replace_a_value(loaded, data):
-    data.event("EVT2")["dwell_seconds"], data.event("EVT2")["product_id"], data.event("EVT2")["category"] = 99, None, None
+    before = loaded.df("SELECT event_sk, dwell_seconds, product_sk, category FROM dw.fact_events WHERE event_id = 'EVT2'").iloc[0]
+    assert before.dwell_seconds != 99 and pd.notna(before.product_sk) and pd.notna(before.category)       # the correction really changes something
+    event = data.event("EVT2")
+    event["dwell_seconds"], event["product_id"], event["category"] = 99, None, None
     loaded.run(data)
-    row = loaded.df("SELECT dwell_seconds, product_sk, category FROM dw.fact_events WHERE event_id = 'EVT2'").iloc[0]
-    assert row.dwell_seconds == 99 and row.product_sk is None or str(row.product_sk) == "nan"
-    assert loaded.count("dw.fact_events") == 3
+    assert_event_corrected(loaded, before, 99)
+
+
+def test_the_corrected_event_check_fails_when_the_applied_value_is_wrong(loaded, data):
+    """Negative control: the same checks must reject a wrong dwell_seconds (the old assertion would have accepted it)."""
+    before = loaded.df("SELECT event_sk, dwell_seconds, product_sk, category FROM dw.fact_events WHERE event_id = 'EVT2'").iloc[0]
+    event = data.event("EVT2")
+    event["dwell_seconds"], event["product_id"], event["category"] = 98, None, None                      # wrong value, NULLs as before
+    loaded.run(data)
+    with pytest.raises(AssertionError):
+        assert_event_corrected(loaded, before, 99)
 
 
 def test_new_record_added_between_runs_is_inserted_once(loaded, data):
