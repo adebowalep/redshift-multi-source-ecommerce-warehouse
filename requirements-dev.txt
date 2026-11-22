@@ -1,0 +1,9 @@
+# Test dependencies (offline: no AWS account, Redshift, Cassandra or Neo4j needed).
+# The notebook itself runs in the Udacity workspace, which provides its own environment.
+pandas>=2.2,<4
+numpy>=1.26
+sqlalchemy>=2.0
+psycopg2-binary>=2.9
+boto3>=1.34
+sqlglot>=25,<31
+pytest>=8,<10

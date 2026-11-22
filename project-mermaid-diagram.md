@@ -1,5 +1,11 @@
 # Schema diagram (Mermaid ER) — matches project-ddl-long.md. Editable-share link removed because it embeds an edit token.
 
+> **Names.** The design uses the logical names `dw.<table>`; Mermaid cannot contain a dot, so the diagram writes `dw_<table>`. In the recorded
+> Udacity run the same tables were physically named `public.dw_<table>` (the lab user could not create schemas).
+> **What is checked.** The notebook's `check_diagram()` (and a test) compare this file with the DDL for missing/extra tables and columns, column
+> type *families*, and a relationship line for every `*_sk` / `*_date_key` column of a fact. It does **not** check `DISTKEY`, `SORTKEY`, `ENCODE`,
+> precision/length or `NOT NULL`; the keys are verified separately against the Redshift catalog.
+
 ```mermaid
 erDiagram
     %% =========================

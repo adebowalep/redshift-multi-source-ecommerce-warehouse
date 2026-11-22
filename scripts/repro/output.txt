@@ -1,0 +1,8 @@
+# Output of the two scripts, run against evidence/starter.executed-2026-11-12.ipynb (the ORIGINAL code) on a throw-away PostgreSQL 17
+# emulation of the warehouse (not on Redshift). Regenerate: python scripts/repro/<script>.py from the repository root.
+R1 before DDL re-run: dw.fact_orders rows = 2
+R1 after  DDL re-run: dw.fact_orders rows = 0 (populated table was dropped and re-created empty)
+R2 fact order_total_usd for ORD1: before correction = 102.2 | staging now = 92.2 | fact after re-run = 102.2
+R3 raw.orders ORD1 total after the CSV was corrected to 92.2 and re-loaded (old ON CONFLICT DO NOTHING): 102.2
+T1 original SQL, insertion order A: (['US', 'CA'], ['low', np.float64(10.0)])
+T1 original SQL, insertion order B: (['DE', 'BE'], ['high', np.float64(99.0)])

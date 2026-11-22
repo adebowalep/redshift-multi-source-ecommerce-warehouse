@@ -1,3 +1,7 @@
+> **HISTORICAL DOCUMENT (written 2026-11-12, before and during the build).** It records what the original Udacity starter files looked like and
+> the defects found in them. Statements such as "NOT IMPLEMENTED", "NOT VERIFIED" and the environment notes describe that moment, not the
+> current repository. For the current state see `README.md`, `reports/warehouse_report.md` and `reports/01-engineering-audit.md`.
+
 # Project Audit — Unified Commerce Data Warehouse
 
 Audit date: 2026-11-12. Nothing in the starter files has been modified yet.

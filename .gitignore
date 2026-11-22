@@ -7,3 +7,6 @@ __pycache__/
 *.pem
 credentials*
 .aws/
+.pytest_cache/
+.venv/
+venv/

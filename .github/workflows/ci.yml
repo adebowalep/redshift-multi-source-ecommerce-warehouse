@@ -1,0 +1,50 @@
+name: CI
+
+# Offline checks only: no AWS credentials, no Redshift, no Udacity lab. Redshift-specific behaviour is documented in the README as
+# "not verified by CI"; the warehouse SQL runs against a PostgreSQL service container (an emulation, see tests/fake_redshift.py).
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      TEST_PG_DSN: host=localhost port=5432 user=postgres password=postgres
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+      - name: Install dependencies
+        run: python -m pip install -r requirements-dev.txt
+      - name: Python syntax check (tests and notebook code cells)
+        run: |
+          python -m compileall -q tests scripts
+          python - <<'PY'
+          import json
+          nb = json.load(open("starter.ipynb"))
+          for i, c in enumerate(nb["cells"]):
+              if c["cell_type"] == "code":
+                  compile("".join(c["source"]), f"starter.ipynb[cell {i}]", "exec")
+          print("all notebook code cells compile")
+          PY
+      - name: Tests (transformations, Data API helpers, setup modes, warehouse semantics, SQL/DDL/diagram checks)
+        run: python -m pytest
